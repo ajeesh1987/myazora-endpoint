@@ -1,6 +1,7 @@
 fastapi
 uvicorn
-diffusers[torch]
-torch
 pillow
+torch
+diffusers
+transformers
 requests
