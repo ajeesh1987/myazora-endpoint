@@ -1,46 +1,41 @@
 # handler.py
-import os
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel
+from io import BytesIO
+from PIL import Image
 import torch
 from diffusers import StableDiffusionPipeline
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 import requests
-from PIL import Image
-from io import BytesIO
-import uuid
 
 app = FastAPI()
 
-class Input(BaseModel):
-    imageUrl: str
+model_id = "naclbit/tranquil-garden-ghibli"  # Change if needed
+pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+pipe.to("cuda")
 
-model = None
-
-def load_pipeline():
-    global model
-    model = StableDiffusionPipeline.from_pretrained(
-        "runwayml/stable-diffusion-v1-5",
-        torch_dtype=torch.float16
-    )
-    model.to("cuda")
-
-@app.on_event("startup")
-async def startup_event():
-    load_pipeline()
+class ImageRequest(BaseModel):
+    image_url: str
 
 @app.post("/")
-async def generate_image(input: Input):
+async def generate_ghibli_image(payload: ImageRequest):
     try:
-        response = requests.get(input.imageUrl)
-        response.raise_for_status()
-        init_image = Image.open(BytesIO(response.content)).convert("RGB").resize((512, 512))
-        prompt = "Studio Ghibli style reinterpretation of the uploaded image. Soft colors, nature background, dreamy lighting"
-        image = model(prompt=prompt, image=init_image).images[0]
+        image_url = payload.image_url
+        if not image_url:
+            raise HTTPException(status_code=400, detail="Missing image URL")
 
-        temp_path = f"/tmp/{uuid.uuid4().hex}.png"
-        image.save(temp_path)
+        prompt = "Studio Ghibli style reimagination of the provided image. Dreamlike, vivid, poetic."
+        init_image = Image.open(BytesIO(requests.get(image_url).content)).convert("RGB")
+        init_image = init_image.resize((512, 512))
 
-        return {"image_path": temp_path}  # This will be adapted by RunPod's return policy
+        result = pipe(prompt=prompt, image=init_image, strength=0.75, guidance_scale=7.5)
 
+        if not result or not result.images:
+            raise HTTPException(status_code=500, detail="Failed to generate image")
+
+        buffer = BytesIO()
+        result.images[0].save(buffer, format="PNG")
+        buffer.seek(0)
+
+        return {"image": "data:image/png;base64," + buffer.getvalue().decode("latin1")}  # For internal test
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
