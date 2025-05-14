@@ -1,15 +1,23 @@
 FROM python:3.10-slim
 
-RUN apt-get update && apt-get install -y git && \
-    pip install --upgrade pip
+# System dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install heavyweight deps first to cache
-RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# Install Torch + CUDA support early for caching
+RUN pip install --upgrade pip && \
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-# Then install the rest
+# Install remaining Python deps
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
+# Add code
 COPY . /app
 WORKDIR /app
 
