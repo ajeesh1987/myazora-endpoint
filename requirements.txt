@@ -4,3 +4,4 @@ pillow
 diffusers
 transformers
 requests
+accelerate
