@@ -8,7 +8,7 @@ import requests
 
 app = FastAPI()
 
-model_id = "naclbit/tranquil-garden-ghibli"
+model_id = "nitrosocke/epiCRealism"
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipe.to("cuda")
 
