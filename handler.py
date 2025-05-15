@@ -8,13 +8,16 @@ import requests
 
 app = FastAPI()
 
-model_id = "nitrosocke/epiCRealism"
+# Load the model
+model_id = "nitrosocke/epiCRealism"  # ✅ You can change this to your preferred Ghibli-style model
 pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
 pipe.to("cuda")
 
+# Request payload
 class ImageRequest(BaseModel):
     image_url: str
 
+# POST endpoint
 @app.post("/")
 async def generate_image(request: ImageRequest):
     try:
@@ -35,3 +38,8 @@ async def generate_image(request: ImageRequest):
         return {"image": "data:image/png;base64," + buffer.getvalue().decode("latin1")}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ✅ Only runs when container is started directly
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("handler:app", host="0.0.0.0", port=3000)
