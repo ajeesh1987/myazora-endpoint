@@ -1,7 +1,7 @@
-# Use the latest verified RunPod PyTorch image with CUDA and Torch preinstalled
-FROM runpod/pytorch:2.1.0-py310-cu121
+# CUDA-ready PyTorch base from NVIDIA + PyTorch team (kept very lean)
+FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-runtime
 
-# Install system dependencies for Pillow and Diffusers
+# Install small set of system libs needed by Pillow / Diffusers
 RUN apt-get update && apt-get install -y \
     git \
     libglib2.0-0 \
@@ -10,11 +10,11 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy and install requirements (torch already included)
+# Copy dependency list and install (Torch already included in base image)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app code
+# Copy application code
 COPY . /app
 WORKDIR /app
 
