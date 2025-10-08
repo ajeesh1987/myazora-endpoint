@@ -1,4 +1,4 @@
-name: myazora-endpoint
+name: myazora-api
 version: "1"
 resources:
   type: gpu
