@@ -7,7 +7,6 @@ import torch
 from diffusers import StableDiffusionImg2ImgPipeline
 import requests
 import base64
-
 app = FastAPI()
 
 model_id = "runwayml/stable-diffusion-v1-5"
