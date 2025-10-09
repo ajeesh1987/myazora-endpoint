@@ -1,7 +1,4 @@
 fastapi
 uvicorn
 pillow
-diffusers
-transformers
 requests
-accelerate
