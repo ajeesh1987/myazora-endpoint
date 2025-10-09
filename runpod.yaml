@@ -2,7 +2,7 @@ name: myazora-api
 version: "1"
 resources:
   type: gpu
-    memory: 16Gi        
+  memory: 16Gi
   ports:
     - 8000
 startCommand: uvicorn handler:app --host 0.0.0.0 --port 8000
