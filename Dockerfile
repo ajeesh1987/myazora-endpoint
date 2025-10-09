@@ -12,14 +12,10 @@ RUN apt-get update && apt-get install -y \
 
 # Copy dependency list and install compatible versions
 COPY requirements.txt .
-RUN pip install --no-cache-dir \
-    diffusers==0.29.0 \
-    transformers==4.42.3 \
-    accelerate==0.31.0 \
-    Pillow==10.3.0 \
-    requests \
-    fastapi \
-    uvicorn
+RUN pip install --no-cache-dir torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 \
+    diffusers==0.29.0 transformers==4.42.3 accelerate==0.31.0 Pillow==10.3.0 \
+    fastapi uvicorn requests
+
 
 # Copy app
 COPY . /app
