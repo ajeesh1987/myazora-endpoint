@@ -1,0 +1,7 @@
+HOW TO Create pod
+
+1) name it myazora-api
+2) image name: ajeesh87/myazora:latest
+3) start command: uvicorn handler:app --host 0.0.0.0 --port 8000
+4) run
+5) copy endpoint ID and update vercel env variables
