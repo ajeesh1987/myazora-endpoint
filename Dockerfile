@@ -1,7 +1,7 @@
-# CUDA-ready PyTorch base from NVIDIA + PyTorch team (kept very lean)
+# CUDA-ready PyTorch base
 FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-runtime
 
-# Install small set of system libs needed by Pillow / Diffusers
+# System libs for Pillow / Diffusers
 RUN apt-get update && apt-get install -y \
     git \
     libglib2.0-0 \
@@ -10,13 +10,20 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
  && rm -rf /var/lib/apt/lists/*
 
-# Copy dependency list and install (Torch already included in base image)
+# Copy dependency list and install compatible versions
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    diffusers==0.29.0 \
+    transformers==4.42.3 \
+    accelerate==0.31.0 \
+    Pillow==10.3.0 \
+    requests \
+    fastapi \
+    uvicorn
 
-# Copy application code
+# Copy app
 COPY . /app
 WORKDIR /app
 
-EXPOSE 3000
-CMD ["uvicorn", "handler:app", "--host", "0.0.0.0", "--port", "3000"]
+EXPOSE 8000
+CMD ["uvicorn", "handler:app", "--host", "0.0.0.0", "--port", "8000"]
